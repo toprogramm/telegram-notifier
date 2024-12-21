@@ -1,0 +1,33 @@
+name: Telegram Notifier
+description: Sends notifications to Telegram
+inputs:
+  token:
+    description: "Telegram Bot Token"
+    required: true
+  chat_id:
+    description: "Telegram Chat ID"
+    required: true
+  thread_id:
+    description: "Telegram Thread ID (optional)"
+    required: false
+  message:
+    description: "Message to send"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - run: |
+        if [ -n "${{ inputs.thread_id }}" ]; then
+          curl -s -X POST https://api.telegram.org/bot${{ inputs.token }}/sendMessage \
+            -d chat_id=${{ inputs.chat_id }} \
+            -d text="${{ inputs.message }}" \
+            -d parse_mode=Markdown \
+            -d message_thread_id=${{ inputs.thread_id }}
+        else
+          curl -s -X POST https://api.telegram.org/bot${{ inputs.token }}/sendMessage \
+            -d chat_id=${{ inputs.chat_id }} \
+            -d text="${{ inputs.message }}" \
+            -d parse_mode=Markdown
+        fi
+      shell: bash
