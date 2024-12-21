@@ -68,7 +68,8 @@ jobs:
             Commit: $GITHUB_SHA
 ```
 ### Result of it
-![image](https://github.com/user-attachments/assets/dc10af0e-ebee-4a89-9510-3bdf0df8b650)
+![image](https://github.com/user-attachments/assets/0bb67bf0-abbf-46cf-8413-14c6da1270fc)
+
 
 ### Creating Secrets in GitHub
 To securely store and use sensitive information like your Telegram Bot Token and Chat ID, follow these steps:
