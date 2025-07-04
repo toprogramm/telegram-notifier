@@ -18,16 +18,40 @@ runs:
   using: "composite"
   steps:
     - run: |
+        escape_markdown_v2() {
+          echo "$1" | sed -e 's/\\/\\\\/g' \
+                        -e 's/_/\\_/g' \
+                        -e 's/\*/\\*/g' \
+                        -e 's/\[/\\[/g' \
+                        -e 's/\]/\\]/g' \
+                        -e 's/(/\\(/g' \
+                        -e 's/)/\\)/g' \
+                        -e 's/~/\\~/g' \
+                        -e 's/`/\\`/g' \
+                        -e 's/>/\\>/g' \
+                        -e 's/#/\\#/g' \
+                        -e 's/+/\\+/g' \
+                        -e 's/-/\\-/g' \
+                        -e 's/=/\\=/g' \
+                        -e 's/|/\\|/g' \
+                        -e 's/{/\\{/g' \
+                        -e 's/}/\\}/g' \
+                        -e 's/\./\\./g' \
+                        -e 's/!/\\!/g'
+        }
+
+        ESCAPED_MESSAGE=$(escape_markdown_v2 "${{ inputs.message }}")
+
         if [ -n "${{ inputs.thread_id }}" ]; then
           curl -s -X POST https://api.telegram.org/bot${{ inputs.token }}/sendMessage \
             -d chat_id=${{ inputs.chat_id }} \
-            -d text="${{ inputs.message }}" \
-            -d parse_mode=Markdown \
+            -d text="$ESCAPED_MESSAGE" \
+            -d parse_mode=MarkdownV2 \
             -d message_thread_id=${{ inputs.thread_id }}
         else
           curl -s -X POST https://api.telegram.org/bot${{ inputs.token }}/sendMessage \
             -d chat_id=${{ inputs.chat_id }} \
-            -d text="${{ inputs.message }}" \
-            -d parse_mode=Markdown
+            -d text="$ESCAPED_MESSAGE" \
+            -d parse_mode=MarkdownV2
         fi
       shell: bash
