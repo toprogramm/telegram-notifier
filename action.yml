@@ -30,12 +30,12 @@ runs:
             -H "Content-Type: application/x-www-form-urlencoded; charset=utf-8" \
             -d chat_id="${{ inputs.chat_id }}" \
             -d text="$ESCAPED_MESSAGE" \
-            -d parse_mode=HTML \
+            -d parse_mode=HTML \ # ADD MARKDOWN as choice 
             -d message_thread_id="${{ inputs.thread_id }}"
         else
           curl -s -X POST https://api.telegram.org/bot${{ inputs.token }}/sendMessage \
             -H "Content-Type: application/x-www-form-urlencoded; charset=utf-8" \
             -d chat_id="${{ inputs.chat_id }}" \
             -d text="$ESCAPED_MESSAGE" \
-            -d parse_mode=HTML
+            -d parse_mode=HTML # ADD MARKDOWN as choice
         fi
