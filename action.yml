@@ -1,5 +1,6 @@
 name: Telegram Notifier
 description: Sends notifications to Telegram
+
 inputs:
   token:
     description: "Telegram Bot Token"
@@ -13,29 +14,31 @@ inputs:
   message:
     description: "Message to send"
     required: true
+  parse_mode:
+    description: "Parse mode for message: Markdown, MarkdownV2, or HTML (default: HTML)"
+    required: false
 
 runs:
   using: "composite"
   steps:
-    - shell: bash
-      run: |
-        escape_underscores() {
-          echo "$1" | sed -E 's/(_)/\\\1/g'
-        }
+    - run: |
+        # Default parse mode
+        [ -z "$PARSE_MODE" ] && PARSE_MODE="HTML"
 
-        ESCAPED_MESSAGE="$(escape_underscores "${{ inputs.message }}")"
+        # Добавим аргумент thread_id, если он есть
+        THREAD_ARG=""
+        [ -n "$THREAD_ID" ] && THREAD_ARG="-d message_thread_id=$THREAD_ID"
 
-        if [ -n "${{ inputs.thread_id }}" ]; then
-          curl -s -X POST https://api.telegram.org/bot${{ inputs.token }}/sendMessage \
-            -H "Content-Type: application/x-www-form-urlencoded; charset=utf-8" \
-            -d chat_id="${{ inputs.chat_id }}" \
-            -d text="$ESCAPED_MESSAGE" \
-            -d parse_mode=HTML \ # ADD MARKDOWN as choice 
-            -d message_thread_id="${{ inputs.thread_id }}"
-        else
-          curl -s -X POST https://api.telegram.org/bot${{ inputs.token }}/sendMessage \
-            -H "Content-Type: application/x-www-form-urlencoded; charset=utf-8" \
-            -d chat_id="${{ inputs.chat_id }}" \
-            -d text="$ESCAPED_MESSAGE" \
-            -d parse_mode=HTML # ADD MARKDOWN as choice
-        fi
+        # Send message
+        curl -s -X POST "https://api.telegram.org/bot$TOKEN/sendMessage" \
+          -d chat_id="$CHAT_ID" \
+          -d text="$MESSAGE" \
+          -d parse_mode="$PARSE_MODE" \
+          $THREAD_ARG
+      shell: bash
+      env:
+        TOKEN: ${{ inputs.token }}
+        CHAT_ID: ${{ inputs.chat_id }}
+        THREAD_ID: ${{ inputs.thread_id }}
+        MESSAGE: ${{ inputs.message }}
+        PARSE_MODE: ${{ inputs.parse_mode }}
